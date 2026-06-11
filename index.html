@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WK 2026 Speelschema</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --orange:#ff6b00;
+  --orange-dim:#ff6b0033;
+  --orange-mid:#ff6b0066;
+  --bg:#0d0d1a;
+  --card:#15152a;
+  --card2:#1c1c35;
+  --border:#222244;
+  --text:#e0e0f0;
+  --muted:#666680;
+  --subtle:#333355;
+}
+
+html{font-size:15px;}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── HEADER ─────────────────────────────── */
+.header{
+  background:linear-gradient(160deg,#110800 0%,#1e0f00 60%,#110800 100%);
+  border-bottom:2px solid var(--orange);
+  padding:18px 16px 14px;
+  text-align:center;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 4px 20px #000a;
+}
+.header h1{
+  font-size:1.5rem;font-weight:900;
+  color:var(--orange);letter-spacing:3px;text-transform:uppercase;
+}
+.header-sub{font-size:.7rem;color:var(--muted);margin-top:3px;letter-spacing:1px;}
+
+/* ── NAV ─────────────────────────────────── */
+.nav{
+  display:flex;
+  background:#0a0a18;
+  border-top:1px solid #1a1a30;
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  box-shadow:0 -4px 20px #000c;
+}
+.nav-btn{
+  flex:1;padding:10px 4px 12px;
+  background:none;border:none;color:var(--muted);
+  font-size:.65rem;font-weight:600;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:color .2s;letter-spacing:.5px;text-transform:uppercase;
+}
+.nav-btn .ni{font-size:1.4rem;}
+.nav-btn.active{color:var(--orange);}
+.nav-btn.active .ni{filter:drop-shadow(0 0 6px var(--orange));}
+
+/* ── CONTENT ─────────────────────────────── */
+.content{
+  padding:14px 12px 90px;
+  max-width:680px;margin:0 auto;
+}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ── DATE SECTION ────────────────────────── */
+.date-section{margin-top:22px;}
+.date-section:first-child{margin-top:0;}
+
+.date-label{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;
+}
+.date-label-text{
+  font-size:.75rem;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;
+}
+.date-label-text.today-text{color:var(--orange);}
+
+.vandaag-pill{
+  background:var(--orange);color:#fff;
+  font-size:.6rem;font-weight:900;
+  padding:2px 8px;border-radius:20px;letter-spacing:1px;
+}
+
+/* today ring around entire section */
+.today-section{
+  position:relative;
+  padding:12px;
+  border:2px solid var(--orange);
+  border-radius:20px;
+  background:rgba(255,107,0,.04);
+  animation:glow-border 2.5s ease-in-out infinite;
+}
+@keyframes glow-border{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,.2),inset 0 0 0 0 rgba(255,107,0,.05);}
+  50%{box-shadow:0 0 18px 4px rgba(255,107,0,.15),inset 0 0 12px 0 rgba(255,107,0,.07);}
+}
+
+/* ── MATCH CARD ──────────────────────────── */
+.match-card{
+  background:var(--card);
+  border-radius:14px;
+  padding:14px 16px;
+  margin-bottom:9px;
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+  transition:transform .15s,box-shadow .15s;
+}
+.match-card:active{transform:scale(.99);}
+.match-card::after{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--group-color,#333355);
+  border-radius:14px 14px 0 0;
+}
+.match-card.today-card{background:#150e00;border-color:rgba(255,107,0,.25);}
+.match-card.nl-card{background:#14100a;border-color:rgba(255,140,0,.4);}
+.match-card.nl-card::after{background:linear-gradient(90deg,#ff6600,#ffaa00);}
+
+.card-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;
+}
+.group-badge{
+  font-size:.65rem;font-weight:700;
+  padding:2px 9px;border-radius:20px;
+  border:1px solid transparent;
+}
+.md-badge{font-size:.6rem;color:var(--muted);}
+.live-tag{
+  background:#c00;color:#fff;font-size:.6rem;font-weight:900;
+  padding:2px 8px;border-radius:20px;letter-spacing:.5px;
+  animation:flash 1s ease-in-out infinite;
+}
+.done-tag{font-size:.6rem;color:var(--muted);}
+.nl-tag{
+  background:var(--orange);color:#fff;font-size:.6rem;font-weight:900;
+  padding:2px 8px;border-radius:20px;letter-spacing:.5px;
+}
+.sim-tag{
+  font-size:.6rem;color:#5a9;
+  background:#0a2a1a;padding:2px 6px;border-radius:6px;font-weight:600;
+}
+@keyframes flash{0%,100%{opacity:1;}50%{opacity:.5;}}
+
+/* match body */
+.match-body{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:10px;
+}
+.team{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.team.home{align-items:flex-start;}
+.team.away{align-items:flex-end;}
+.team-flag{font-size:2.4rem;line-height:1;}
+.team-name{
+  font-size:.85rem;font-weight:600;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:110px;
+}
+.team.home .team-name{text-align:left;}
+.team.away .team-name{text-align:right;}
+
+.match-center{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.match-time{
+  font-size:1.5rem;font-weight:900;
+  color:#fff;letter-spacing:3px;font-variant-numeric:tabular-nums;
+}
+.match-time.future{color:var(--orange);}
+.match-time.live{color:#f44;animation:flash 1.2s infinite;}
+.match-time.done{color:var(--muted);}
+.vs-sep{font-size:.65rem;color:var(--muted);letter-spacing:1px;}
+
+/* card footer */
+.card-foot{
+  margin-top:12px;display:flex;align-items:center;gap:5px;
+  font-size:.7rem;color:var(--muted);border-top:1px solid var(--border);
+  padding-top:9px;
+}
+.foot-icon{font-size:.85rem;}
+
+/* ── GROUP COLORS ────────────────────────── */
+.gA{--group-color:#e74c3c;}.gbA{background:#e74c3c18;color:#e74c3c;border-color:#e74c3c44;}
+.gB{--group-color:#e67e22;}.gbB{background:#e67e2218;color:#e67e22;border-color:#e67e2244;}
+.gC{--group-color:#d4ac0d;}.gbC{background:#d4ac0d18;color:#d4ac0d;border-color:#d4ac0d44;}
+.gD{--group-color:#2ecc71;}.gbD{background:#2ecc7118;color:#2ecc71;border-color:#2ecc7144;}
+.gE{--group-color:#1abc9c;}.gbE{background:#1abc9c18;color:#1abc9c;border-color:#1abc9c44;}
+.gF{--group-color:#3498db;}.gbF{background:#3498db18;color:#3498db;border-color:#3498db44;}
+.gG{--group-color:#9b59b6;}.gbG{background:#9b59b618;color:#9b59b6;border-color:#9b59b644;}
+.gH{--group-color:#e91e63;}.gbH{background:#e91e6318;color:#e91e63;border-color:#e91e6344;}
+.gI{--group-color:#00bcd4;}.gbI{background:#00bcd418;color:#00bcd4;border-color:#00bcd444;}
+.gJ{--group-color:#8bc34a;}.gbJ{background:#8bc34a18;color:#8bc34a;border-color:#8bc34a44;}
+.gK{--group-color:#ff9800;}.gbK{background:#ff980018;color:#ff9800;border-color:#ff980044;}
+.gL{--group-color:#78909c;}.gbL{background:#78909c18;color:#78909c;border-color:#78909c44;}
+
+/* ── NEDERLAND PAGE ──────────────────────── */
+.nl-hero{
+  text-align:center;
+  background:linear-gradient(160deg,#150800,#2a1200,#150800);
+  border:1px solid rgba(255,140,0,.3);
+  border-radius:20px;padding:24px 16px;margin-bottom:16px;
+}
+.nl-flag{font-size:3.5rem;margin-bottom:8px;}
+.nl-title{font-size:1.6rem;font-weight:900;color:var(--orange);letter-spacing:2px;}
+.nl-subtitle{font-size:.8rem;color:var(--muted);margin-top:4px;letter-spacing:1px;}
+.nl-group{
+  display:inline-block;margin-top:10px;
+  background:#1a1a30;border:1px solid #333;
+  border-radius:20px;padding:4px 14px;
+  font-size:.75rem;color:#aaa;font-weight:600;
+}
+
+/* countdown */
+.countdown-box{
+  background:linear-gradient(135deg,#150800,#200f00);
+  border:1px solid rgba(255,107,0,.3);
+  border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;
+}
+.cd-label{
+  font-size:.65rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;
+}
+.cd-time{
+  font-size:2rem;font-weight:900;color:var(--orange);
+  font-variant-numeric:tabular-nums;letter-spacing:3px;
+}
+.cd-match{font-size:.8rem;color:#aaa;margin-top:8px;}
+.cd-live{font-size:1.2rem;font-weight:900;color:#f44;animation:flash 1s infinite;}
+
+/* group teams */
+.group-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;margin-bottom:16px;
+}
+.group-box-head{
+  background:var(--card2);padding:10px 16px;
+  font-size:.7rem;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;
+  display:flex;align-items:center;gap:8px;
+}
+.group-team-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;border-top:1px solid var(--border);
+  font-size:.85rem;
+}
+.group-team-row.nl-row{background:#1a1000;font-weight:700;color:#ffa040;}
+.gt-flag{font-size:1.4rem;}
+.gt-name{flex:1;}
+
+.nl-section-title{
+  font-size:.75rem;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1.5px;
+  margin:18px 0 10px;
+}
+
+/* ── ALL MATCHES PAGE ────────────────────── */
+.filter-bar{
+  display:flex;gap:6px;overflow-x:auto;
+  padding-bottom:6px;margin-bottom:14px;
+  scrollbar-width:none;
+}
+.filter-bar::-webkit-scrollbar{display:none;}
+.fb{
+  flex-shrink:0;padding:5px 14px;
+  border-radius:20px;border:1px solid var(--subtle);
+  background:var(--card);color:var(--muted);
+  font-size:.7rem;font-weight:700;cursor:pointer;
+  transition:all .2s;letter-spacing:.5px;
+}
+.fb.on{background:var(--orange);border-color:var(--orange);color:#fff;}
+
+.all-page-title{
+  font-size:1.1rem;font-weight:800;color:var(--orange);
+  text-align:center;margin-bottom:14px;letter-spacing:1px;
+}
+
+/* ── NO MATCHES ──────────────────────────── */
+.no-matches{
+  text-align:center;padding:40px 20px;color:var(--muted);
+}
+.no-matches .nm-icon{font-size:2.5rem;margin-bottom:10px;}
+
+/* ── RESPONSIVE ─────────────────────────── */
+@media(min-width:520px){
+  .match-card{padding:18px 20px;}
+  .team-flag{font-size:2.8rem;}
+  .match-time{font-size:1.8rem;}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <h1>⚽ WK 2026</h1>
+  <div class="header-sub">FIFA World Cup • USA · Canada · Mexico · 11 juni – 19 juli</div>
+</header>
+
+<main class="content">
+  <div id="page-home" class="page active"></div>
+  <div id="page-nederland" class="page"></div>
+  <div id="page-alle" class="page"></div>
+</main>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('home')" id="nb-home">
+    <span class="ni">🏠</span><span>Vandaag</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('nederland')" id="nb-nederland">
+    <span class="ni">🇳🇱</span><span>Nederland</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('alle')" id="nb-alle">
+    <span class="ni">📋</span><span>Alle Wedstrijden</span>
+  </button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════
+   WEDSTRIJD DATA – alle tijden in NL (CEST)
+════════════════════════════════════════════ */
+const MATCHES = [
+/* ─── SPEELDAG 1 ─── */
+{id:1, date:"2026-06-11",time:"21:00",home:"Mexico",       away:"Zuid-Afrika",   hf:"🇲🇽",af:"🇿🇦",group:"A",venue:"Mexico City (Estadio Azteca)",md:1},
+{id:2, date:"2026-06-12",time:"04:00",home:"Zuid-Korea",   away:"Tsjechië",      hf:"🇰🇷",af:"🇨🇿",group:"A",venue:"Guadalajara",              md:1},
+{id:3, date:"2026-06-12",time:"21:00",home:"Canada",       away:"Bosnië-Herz.",  hf:"🇨🇦",af:"🇧🇦",group:"B",venue:"Toronto",                  md:1},
+{id:4, date:"2026-06-13",time:"03:00",home:"VS",           away:"Paraguay",      hf:"🇺🇸",af:"🇵🇾",group:"D",venue:"Los Angeles (SoFi Stadium)",md:1},
+{id:5, date:"2026-06-13",time:"21:00",home:"Qatar",        away:"Zwitserland",   hf:"🇶🇦",af:"🇨🇭",group:"B",venue:"Santa Clara",              md:1},
+{id:6, date:"2026-06-14",time:"00:00",home:"Brazilië",     away:"Marokko",       hf:"🇧🇷",af:"🇲🇦",group:"C",venue:"East Rutherford, NJ",      md:1},
+{id:7, date:"2026-06-14",time:"03:00",home:"Haïti",        away:"Schotland",     hf:"🇭🇹",af:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",group:"C",venue:"Boston/Foxborough",         md:1},
+{id:8, date:"2026-06-14",time:"06:00",home:"Australië",    away:"Turkije",       hf:"🇦🇺",af:"🇹🇷",group:"D",venue:"Vancouver",                md:1},
+{id:9, date:"2026-06-14",time:"19:00",home:"Duitsland",    away:"Curaçao",       hf:"🇩🇪",af:"🇨🇼",group:"E",venue:"Houston",                  md:1},
+{id:10,date:"2026-06-14",time:"22:00",home:"Nederland",    away:"Japan",         hf:"🇳🇱",af:"🇯🇵",group:"F",venue:"Arlington, TX",             md:1,nl:true},
+{id:11,date:"2026-06-15",time:"01:00",home:"Ecuador",      away:"Ivoorkust",     hf:"🇪🇨",af:"🇨🇮",group:"E",venue:"Philadelphia",             md:1},
+{id:12,date:"2026-06-15",time:"04:00",home:"Zweden",       away:"Tunesië",       hf:"🇸🇪",af:"🇹🇳",group:"F",venue:"Guadalajara",              md:1},
+{id:13,date:"2026-06-15",time:"19:00",home:"Spanje",       away:"Kaapverdië",    hf:"🇪🇸",af:"🇨🇻",group:"H",venue:"Atlanta",                  md:1},
+{id:14,date:"2026-06-16",time:"00:00",home:"België",       away:"Egypte",        hf:"🇧🇪",af:"🇪🇬",group:"G",venue:"Seattle",                  md:1},
+{id:15,date:"2026-06-16",time:"00:00",home:"Saudi-Arabië", away:"Uruguay",       hf:"🇸🇦",af:"🇺🇾",group:"H",venue:"Miami",                    md:1},
+{id:16,date:"2026-06-16",time:"06:00",home:"Iran",         away:"Nieuw-Zeeland", hf:"🇮🇷",af:"🇳🇿",group:"G",venue:"Los Angeles",              md:1},
+{id:17,date:"2026-06-16",time:"21:00",home:"Frankrijk",    away:"Senegal",       hf:"🇫🇷",af:"🇸🇳",group:"I",venue:"East Rutherford, NJ",      md:1},
+{id:18,date:"2026-06-17",time:"00:00",home:"Irak",         away:"Noorwegen",     hf:"🇮🇶",af:"🇳🇴",group:"I",venue:"Boston/Foxborough",         md:1},
+{id:19,date:"2026-06-17",time:"03:00",home:"Argentinië",   away:"Algerije",      hf:"🇦🇷",af:"🇩🇿",group:"J",venue:"Kansas City",              md:1},
+{id:20,date:"2026-06-17",time:"03:00",home:"Oostenrijk",   away:"Jordanië",      hf:"🇦🇹",af:"🇯🇴",group:"J",venue:"Santa Clara",              md:1},
+{id:21,date:"2026-06-17",time:"19:00",home:"Portugal",     away:"DR Congo",      hf:"🇵🇹",af:"🇨🇩",group:"K",venue:"Houston",                  md:1},
+{id:22,date:"2026-06-17",time:"22:00",home:"Engeland",     away:"Kroatië",       hf:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",af:"🇭🇷",group:"L",venue:"Arlington, TX",             md:1},
+{id:23,date:"2026-06-18",time:"01:00",home:"Ghana",        away:"Panama",        hf:"🇬🇭",af:"🇵🇦",group:"L",venue:"Toronto",                  md:1},
+{id:24,date:"2026-06-18",time:"04:00",home:"Oezbekistan",  away:"Colombia",      hf:"🇺🇿",af:"🇨🇴",group:"K",venue:"Mexico City",              md:1},
+/* ─── SPEELDAG 2 ─── */
+{id:25,date:"2026-06-18",time:"18:00",home:"Tsjechië",     away:"Zuid-Afrika",   hf:"🇨🇿",af:"🇿🇦",group:"A",venue:"Atlanta",                  md:2},
+{id:26,date:"2026-06-18",time:"21:00",home:"Zwitserland",  away:"Bosnië-Herz.",  hf:"🇨🇭",af:"🇧🇦",group:"B",venue:"Los Angeles",              md:2},
+{id:27,date:"2026-06-19",time:"00:00",home:"Canada",       away:"Qatar",         hf:"🇨🇦",af:"🇶🇦",group:"B",venue:"Vancouver",                md:2},
+{id:28,date:"2026-06-19",time:"05:00",home:"Mexico",       away:"Zuid-Korea",    hf:"🇲🇽",af:"🇰🇷",group:"A",venue:"Guadalajara",              md:2},
+{id:29,date:"2026-06-19",time:"21:00",home:"VS",           away:"Australië",     hf:"🇺🇸",af:"🇦🇺",group:"D",venue:"Seattle",                  md:2},
+{id:30,date:"2026-06-20",time:"00:00",home:"Schotland",    away:"Marokko",       hf:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",af:"🇲🇦",group:"C",venue:"Boston/Foxborough",         md:2},
+{id:31,date:"2026-06-20",time:"03:00",home:"Brazilië",     away:"Haïti",         hf:"🇧🇷",af:"🇭🇹",group:"C",venue:"Philadelphia",             md:2},
+{id:32,date:"2026-06-20",time:"06:00",home:"Turkije",      away:"Paraguay",      hf:"🇹🇷",af:"🇵🇾",group:"D",venue:"Santa Clara",              md:2},
+{id:33,date:"2026-06-20",time:"19:00",home:"Nederland",    away:"Zweden",        hf:"🇳🇱",af:"🇸🇪",group:"F",venue:"Houston",                  md:2,nl:true},
+{id:34,date:"2026-06-20",time:"22:00",home:"Duitsland",    away:"Ivoorkust",     hf:"🇩🇪",af:"🇨🇮",group:"E",venue:"Toronto",                  md:2},
+{id:35,date:"2026-06-21",time:"02:00",home:"Ecuador",      away:"Curaçao",       hf:"🇪🇨",af:"🇨🇼",group:"E",venue:"Kansas City",              md:2},
+{id:36,date:"2026-06-21",time:"06:00",home:"Tunesië",      away:"Japan",         hf:"🇹🇳",af:"🇯🇵",group:"F",venue:"Guadalajara",              md:2},
+{id:37,date:"2026-06-21",time:"18:00",home:"Spanje",       away:"Saudi-Arabië",  hf:"🇪🇸",af:"🇸🇦",group:"H",venue:"Atlanta",                  md:2},
+{id:38,date:"2026-06-21",time:"21:00",home:"België",       away:"Iran",          hf:"🇧🇪",af:"🇮🇷",group:"G",venue:"Los Angeles",              md:2},
+{id:39,date:"2026-06-22",time:"00:00",home:"Uruguay",      away:"Kaapverdië",    hf:"🇺🇾",af:"🇨🇻",group:"H",venue:"Miami",                    md:2},
+{id:40,date:"2026-06-22",time:"03:00",home:"Nieuw-Zeeland",away:"Egypte",        hf:"🇳🇿",af:"🇪🇬",group:"G",venue:"Vancouver",                md:2},
+{id:41,date:"2026-06-22",time:"19:00",home:"Argentinië",   away:"Oostenrijk",    hf:"🇦🇷",af:"🇦🇹",group:"J",venue:"Arlington, TX",             md:2},
+{id:42,date:"2026-06-22",time:"23:00",home:"Frankrijk",    away:"Irak",          hf:"🇫🇷",af:"🇮🇶",group:"I",venue:"Philadelphia",             md:2},
+{id:43,date:"2026-06-23",time:"02:00",home:"Noorwegen",    away:"Senegal",       hf:"🇳🇴",af:"🇸🇳",group:"I",venue:"East Rutherford, NJ",      md:2},
+{id:44,date:"2026-06-23",time:"05:00",home:"Jordanië",     away:"Algerije",      hf:"🇯🇴",af:"🇩🇿",group:"J",venue:"Santa Clara",              md:2},
+{id:45,date:"2026-06-23",time:"19:00",home:"Portugal",     away:"Oezbekistan",   hf:"🇵🇹",af:"🇺🇿",group:"K",venue:"Houston",                  md:2},
+{id:46,date:"2026-06-23",time:"22:00",home:"Engeland",     away:"Ghana",         hf:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",af:"🇬🇭",group:"L",venue:"Boston/Foxborough",         md:2},
+{id:47,date:"2026-06-24",time:"01:00",home:"Panama",       away:"Kroatië",       hf:"🇵🇦",af:"🇭🇷",group:"L",venue:"Toronto",                  md:2},
+{id:48,date:"2026-06-24",time:"04:00",home:"Colombia",     away:"DR Congo",      hf:"🇨🇴",af:"🇨🇩",group:"K",venue:"Guadalajara",              md:2},
+/* ─── SPEELDAG 3 (gelijktijdig) ─── */
+{id:49,date:"2026-06-24",time:"21:00",home:"Zwitserland",  away:"Canada",        hf:"🇨🇭",af:"🇨🇦",group:"B",venue:"TBD",                      md:3,sim:true},
+{id:50,date:"2026-06-24",time:"21:00",home:"Bosnië-Herz.", away:"Qatar",         hf:"🇧🇦",af:"🇶🇦",group:"B",venue:"TBD",                      md:3,sim:true},
+{id:51,date:"2026-06-25",time:"00:00",home:"Schotland",    away:"Brazilië",      hf:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",af:"🇧🇷",group:"C",venue:"TBD",                      md:3,sim:true},
+{id:52,date:"2026-06-25",time:"00:00",home:"Marokko",      away:"Haïti",         hf:"🇲🇦",af:"🇭🇹",group:"C",venue:"TBD",                      md:3,sim:true},
+{id:53,date:"2026-06-25",time:"03:00",home:"Tsjechië",     away:"Mexico",        hf:"🇨🇿",af:"🇲🇽",group:"A",venue:"Mexico City",              md:3,sim:true},
+{id:54,date:"2026-06-25",time:"03:00",home:"Zuid-Afrika",  away:"Zuid-Korea",    hf:"🇿🇦",af:"🇰🇷",group:"A",venue:"Monterrey",                md:3,sim:true},
+{id:55,date:"2026-06-25",time:"22:00",home:"Ecuador",      away:"Duitsland",     hf:"🇪🇨",af:"🇩🇪",group:"E",venue:"East Rutherford, NJ",      md:3,sim:true},
+{id:56,date:"2026-06-25",time:"22:00",home:"Curaçao",      away:"Ivoorkust",     hf:"🇨🇼",af:"🇨🇮",group:"E",venue:"Philadelphia",             md:3,sim:true},
+{id:57,date:"2026-06-26",time:"01:00",home:"Japan",        away:"Zweden",        hf:"🇯🇵",af:"🇸🇪",group:"F",venue:"Arlington, TX",             md:3,sim:true},
+{id:58,date:"2026-06-26",time:"01:00",home:"Tunesië",      away:"Nederland",     hf:"🇹🇳",af:"🇳🇱",group:"F",venue:"Kansas City",              md:3,sim:true,nl:true},
+{id:59,date:"2026-06-26",time:"04:00",home:"Turkije",      away:"VS",            hf:"🇹🇷",af:"🇺🇸",group:"D",venue:"Los Angeles",              md:3,sim:true},
+{id:60,date:"2026-06-26",time:"04:00",home:"Paraguay",     away:"Australië",     hf:"🇵🇾",af:"🇦🇺",group:"D",venue:"Santa Clara",              md:3,sim:true},
+{id:61,date:"2026-06-26",time:"21:00",home:"Noorwegen",    away:"Frankrijk",     hf:"🇳🇴",af:"🇫🇷",group:"I",venue:"Boston/Foxborough",         md:3,sim:true},
+{id:62,date:"2026-06-26",time:"21:00",home:"Senegal",      away:"Irak",          hf:"🇸🇳",af:"🇮🇶",group:"I",venue:"Toronto",                  md:3,sim:true},
+{id:63,date:"2026-06-27",time:"02:00",home:"Kaapverdië",   away:"Saudi-Arabië",  hf:"🇨🇻",af:"🇸🇦",group:"H",venue:"Houston",                  md:3,sim:true},
+{id:64,date:"2026-06-27",time:"02:00",home:"Uruguay",      away:"Spanje",        hf:"🇺🇾",af:"🇪🇸",group:"H",venue:"Guadalajara",              md:3,sim:true},
+{id:65,date:"2026-06-27",time:"05:00",home:"Egypte",       away:"Iran",          hf:"🇪🇬",af:"🇮🇷",group:"G",venue:"Seattle",                  md:3,sim:true},
+{id:66,date:"2026-06-27",time:"05:00",home:"Nieuw-Zeeland",away:"België",        hf:"🇳🇿",af:"🇧🇪",group:"G",venue:"Vancouver",                md:3,sim:true},
+{id:67,date:"2026-06-27",time:"23:00",home:"Panama",       away:"Engeland",      hf:"🇵🇦",af:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",group:"L",venue:"East Rutherford, NJ",      md:3,sim:true},
+{id:68,date:"2026-06-27",time:"23:00",home:"Kroatië",      away:"Ghana",         hf:"🇭🇷",af:"🇬🇭",group:"L",venue:"Philadelphia",             md:3,sim:true},
+{id:69,date:"2026-06-28",time:"01:30",home:"Colombia",     away:"Portugal",      hf:"🇨🇴",af:"🇵🇹",group:"K",venue:"Miami",                    md:3,sim:true},
+{id:70,date:"2026-06-28",time:"01:30",home:"DR Congo",     away:"Oezbekistan",   hf:"🇨🇩",af:"🇺🇿",group:"K",venue:"Atlanta",                  md:3,sim:true},
+{id:71,date:"2026-06-28",time:"04:00",home:"Algerije",     away:"Oostenrijk",    hf:"🇩🇿",af:"🇦🇹",group:"J",venue:"Kansas City",              md:3,sim:true},
+{id:72,date:"2026-06-28",time:"04:00",home:"Jordanië",     away:"Argentinië",    hf:"🇯🇴",af:"🇦🇷",group:"J",venue:"Arlington, TX",             md:3,sim:true},
+];
+
+const GROUP_F = [
+  {name:"Nederland", flag:"🇳🇱", nl:true},
+  {name:"Japan",     flag:"🇯🇵"},
+  {name:"Zweden",    flag:"🇸🇪"},
+  {name:"Tunesië",   flag:"🇹🇳"},
+];
+
+/* ═══════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════════ */
+function dutchDateStr(){
+  return new Intl.DateTimeFormat('sv-SE',{
+    timeZone:'Europe/Amsterdam',
+    year:'numeric',month:'2-digit',day:'2-digit'
+  }).format(new Date());
+}
+
+function matchUTC(m){
+  return new Date(m.date+'T'+m.time+':00+02:00');
+}
+
+function matchStatus(m){
+  const start = matchUTC(m);
+  const end   = new Date(start.getTime() + 115*60*1000); // ~2h match
+  const now   = new Date();
+  if(now < start) return 'upcoming';
+  if(now <= end)  return 'live';
+  return 'done';
+}
+
+const NL_DAYS = ['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'];
+const NL_MONTHS = ['januari','februari','maart','april','mei','juni',
+                   'juli','augustus','september','oktober','november','december'];
+
+function formatDateLong(ds){
+  const [y,mo,d] = ds.split('-').map(Number);
+  const date = new Date(y, mo-1, d);
+  return `${NL_DAYS[date.getDay()]} ${d} ${NL_MONTHS[mo-1]}`;
+}
+
+function addDays(ds, n){
+  const [y,mo,d] = ds.split('-').map(Number);
+  const date = new Date(y, mo-1, d+n);
+  return date.toISOString().slice(0,10);
+}
+
+function uniqueDates(){
+  return [...new Set(MATCHES.map(m=>m.date))].sort();
+}
+
+function matchesByDate(ds){
+  return MATCHES.filter(m=>m.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
+}
+
+/* ═══════════════════════════════════════════
+   RENDER HELPERS
+════════════════════════════════════════════ */
+function timeDisplay(m){
+  const s = matchStatus(m);
+  if(s==='live')    return `<span class="match-time live">LIVE</span>`;
+  if(s==='done')    return `<span class="match-time done">${m.time}</span>`;
+  return `<span class="match-time future">${m.time}</span>`;
+}
+
+function matchCard(m, isToday){
+  const s  = matchStatus(m);
+  const gc = `g${m.group}`;
+  let extra = isToday ? ' today-card' : '';
+  if(m.nl) extra += ' nl-card';
+
+  let tag = '';
+  if(isToday && s==='live')
+    tag = `<span class="live-tag">⬤ LIVE</span>`;
+  else if(isToday && s==='done')
+    tag = `<span class="done-tag">Gespeeld</span>`;
+  else if(m.nl)
+    tag = `<span class="nl-tag">🇳🇱 Oranje</span>`;
+  else if(m.sim)
+    tag = `<span class="sim-tag">⬛ Gelijktijdig</span>`;
+
+  return `
+  <div class="match-card ${gc}${extra}">
+    <div class="card-head">
+      <span class="group-badge gb${m.group}">Groep ${m.group}</span>
+      <span>${tag}</span>
+      <span class="md-badge">Speeldag ${m.md}</span>
+    </div>
+    <div class="match-body">
+      <div class="team home">
+        <span class="team-flag">${m.hf}</span>
+        <span class="team-name">${m.home}</span>
+      </div>
+      <div class="match-center">
+        ${timeDisplay(m)}
+        <span class="vs-sep">NL-tijd</span>
+      </div>
+      <div class="team away">
+        <span class="team-flag">${m.af}</span>
+        <span class="team-name">${m.away}</span>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span class="foot-icon">📍</span>
+      <span>${m.venue}</span>
+    </div>
+  </div>`;
+}
+
+function dateSection(ds, isToday, matches){
+  if(!matches.length) return '';
+  const label = isToday
+    ? `<span class="date-label-text today-text">${formatDateLong(ds)}</span>
+       <span class="vandaag-pill">VANDAAG</span>`
+    : `<span class="date-label-text">${formatDateLong(ds)}</span>`;
+
+  const cards = matches.map(m=>matchCard(m, isToday)).join('');
+
+  if(isToday){
+    return `
+    <div class="date-section">
+      <div class="date-label">${label}</div>
+      <div class="today-section">${cards}</div>
+    </div>`;
+  }
+  return `
+  <div class="date-section">
+    <div class="date-label">${label}</div>
+    ${cards}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   PAGE: HOME
+════════════════════════════════════════════ */
+function renderHome(){
+  const today  = dutchDateStr();
+  const allDates = uniqueDates();
+
+  // Show today + next 4 days that have matches
+  const todayIdx = allDates.indexOf(today);
+  let showDates = [];
+
+  if(todayIdx >= 0){
+    showDates = allDates.slice(todayIdx, todayIdx + 5);
+  } else {
+    // tournament may not have started or today is after group stage
+    const future = allDates.filter(d => d >= today);
+    showDates = future.slice(0, 5);
+  }
+
+  if(!showDates.length){
+    document.getElementById('page-home').innerHTML = `
+    <div class="no-matches">
+      <div class="nm-icon">⚽</div>
+      <p>Geen aankomende groepswedstrijden meer.</p>
+      <p style="margin-top:8px;font-size:.8rem;">Groepsfase: 11 juni – 28 juni 2026</p>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  for(const ds of showDates){
+    const ms = matchesByDate(ds);
+    html += dateSection(ds, ds === today, ms);
+  }
+
+  document.getElementById('page-home').innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════
+   PAGE: NEDERLAND
+════════════════════════════════════════════ */
+function renderNederland(){
+  const nlMatches = MATCHES.filter(m=>m.nl)
+    .sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+
+  // Next NL match
+  const nextNL = nlMatches.find(m=>matchStatus(m)==='upcoming');
+  const liveNL = nlMatches.find(m=>matchStatus(m)==='live');
+
+  // Countdown HTML
+  let cdHtml = '';
+  if(liveNL){
+    cdHtml = `
+    <div class="countdown-box">
+      <div class="cd-label">Status</div>
+      <div class="cd-live">⬤ LIVE BEZIG</div>
+      <div class="cd-match">${liveNL.hf} ${liveNL.home} vs ${liveNL.away} ${liveNL.af}</div>
+    </div>`;
+  } else if(nextNL){
+    cdHtml = `
+    <div class="countdown-box">
+      <div class="cd-label">Volgende wedstrijd over</div>
+      <div class="cd-time" id="cd-timer">--:--:--</div>
+      <div class="cd-match">${nextNL.hf} ${nextNL.home} vs ${nextNL.away} ${nextNL.af}<br>
+        <span style="font-size:.7rem;color:var(--muted)">${formatDateLong(nextNL.date)} om ${nextNL.time} (NL-tijd)</span>
+      </div>
+    </div>`;
+  } else {
+    cdHtml = `
+    <div class="countdown-box">
+      <div class="cd-label">Status</div>
+      <div style="color:var(--muted);padding:10px;">Alle groepswedstrijden zijn gespeeld.</div>
+    </div>`;
+  }
+
+  // Group F
+  const groupHtml = GROUP_F.map(t=>`
+    <div class="group-team-row${t.nl?' nl-row':''}">
+      <span class="gt-flag">${t.flag}</span>
+      <span class="gt-name">${t.name}</span>
+      ${t.nl ? '<span style="font-size:.65rem;color:#ffa040;font-weight:700;">← Oranje</span>' : ''}
+    </div>`).join('');
+
+  // NL match cards
+  const nlCards = nlMatches.map(m=>matchCard(m, false)).join('');
+
+  document.getElementById('page-nederland').innerHTML = `
+  <div class="nl-hero">
+    <div class="nl-flag">🇳🇱</div>
+    <div class="nl-title">NEDERLAND</div>
+    <div class="nl-subtitle">FIFA World Cup 2026 · Groepsfase</div>
+    <div class="nl-group">Groep F · 3 Wedstrijden</div>
+  </div>
+
+  ${cdHtml}
+
+  <div class="group-box">
+    <div class="group-box-head">
+      <span class="group-badge gbF">Groep F</span>
+      <span>Teams</span>
+    </div>
+    ${groupHtml}
+  </div>
+
+  <div class="nl-section-title">Wedstrijden van Oranje</div>
+  ${nlCards}`;
+
+  // start countdown
+  if(nextNL) startCountdown(nextNL);
+}
+
+let cdInterval = null;
+function startCountdown(match){
+  if(cdInterval) clearInterval(cdInterval);
+  function tick(){
+    const el = document.getElementById('cd-timer');
+    if(!el){ clearInterval(cdInterval); return; }
+    const diff = matchUTC(match) - new Date();
+    if(diff <= 0){ el.textContent = 'Nu bezig!'; return; }
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    el.textContent = (d>0?d+'d ':'')+
+      String(h).padStart(2,'0')+':'+
+      String(m).padStart(2,'0')+':'+
+      String(s).padStart(2,'0');
+  }
+  tick();
+  cdInterval = setInterval(tick, 1000);
+}
+
+/* ═══════════════════════════════════════════
+   PAGE: ALLE WEDSTRIJDEN
+════════════════════════════════════════════ */
+let activeFilter = 'Alle';
+
+function renderAlle(){
+  const groups = ['Alle','A','B','C','D','E','F','G','H','I','J','K','L'];
+  const filterBtns = groups.map(g=>
+    `<button class="fb${g===activeFilter?' on':''}" onclick="setFilter('${g}')">${g==='Alle'?'Alle groepen':'Groep '+g}</button>`
+  ).join('');
+
+  const filtered = activeFilter==='Alle'
+    ? MATCHES
+    : MATCHES.filter(m=>m.group===activeFilter);
+
+  const allDates = [...new Set(filtered.map(m=>m.date))].sort();
+  const today = dutchDateStr();
+
+  let sections = '';
+  for(const ds of allDates){
+    const ms = filtered.filter(m=>m.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
+    sections += dateSection(ds, ds===today, ms);
+  }
+
+  document.getElementById('page-alle').innerHTML = `
+  <div class="all-page-title">📋 Alle Wedstrijden</div>
+  <div class="filter-bar">${filterBtns}</div>
+  <div id="alle-list">${sections || '<div class="no-matches"><div class="nm-icon">🔍</div><p>Geen wedstrijden gevonden.</p></div>'}</div>`;
+}
+
+function setFilter(g){
+  activeFilter = g;
+  renderAlle();
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════ */
+let currentPage = 'home';
+
+function showPage(name){
+  // hide all
+  ['home','nederland','alle'].forEach(p=>{
+    document.getElementById('page-'+p).classList.remove('active');
+    document.getElementById('nb-'+p).classList.remove('active');
+  });
+  // show target
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nb-'+name).classList.add('active');
+  currentPage = name;
+
+  if(name==='home')      renderHome();
+  if(name==='nederland') renderNederland();
+  if(name==='alle')      renderAlle();
+
+  window.scrollTo(0,0);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+renderHome();
+
+// Refresh every minute to update LIVE/done status
+setInterval(()=>{
+  if(currentPage==='home')      renderHome();
+  if(currentPage==='nederland') renderNederland();
+  if(currentPage==='alle')      renderAlle();
+}, 60000);
+</script>
+</body>
+</html>
