@@ -1,0 +1,48 @@
+name: WK 2026 – Speelschema Bijwerken
+
+on:
+  # Elke 30 minuten tijdens het WK (11 juni – 28 juni 2026)
+  schedule:
+    - cron: '*/30 * * * *'
+  # Handmatig starten via GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    # Sla de job over als het WK al afgelopen is
+    if: ${{ github.event_name == 'workflow_dispatch' || (vars.TOURNAMENT_ACTIVE != 'false') }}
+
+    permissions:
+      contents: write   # nodig om te committen en pushen
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: claude/wc2026-match-schedule-app-k53cm7
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Python instellen
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Speelschema ophalen en index.html bijwerken
+        id: update
+        env:
+          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+        run: python update_schedule.py
+
+      - name: Wijzigingen committen en pushen
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name  "WK Schedule Bot"
+          git config user.email "actions@github.com"
+          git add index.html
+          git commit -m "Auto-update: WK 2026 speelschema bijgewerkt [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git push origin claude/wc2026-match-schedule-app-k53cm7
+
+      - name: Geen wijzigingen
+        if: steps.update.outputs.changed == 'false'
+        run: echo "Speelschema is al up-to-date, niets te committen."

@@ -178,6 +178,7 @@ body{
 .match-time.future{color:var(--orange);}
 .match-time.live{color:#f44;animation:flash 1.2s infinite;}
 .match-time.done{color:var(--muted);}
+.match-time.scored{color:#7ec850;font-size:1.4rem;letter-spacing:4px;}
 .vs-sep{font-size:.65rem;color:var(--muted);letter-spacing:1px;}
 
 /* card footer */
@@ -326,6 +327,7 @@ body{
 /* ═══════════════════════════════════════════
    WEDSTRIJD DATA – alle tijden in NL (CEST)
 ════════════════════════════════════════════ */
+// MATCHES_DATA_START
 const MATCHES = [
 /* ─── SPEELDAG 1 ─── */
 {id:1, date:"2026-06-11",time:"21:00",home:"Mexico",       away:"Zuid-Afrika",   hf:"🇲🇽",af:"🇿🇦",group:"A",venue:"Mexico City (Estadio Azteca)",md:1},
@@ -403,6 +405,7 @@ const MATCHES = [
 {id:71,date:"2026-06-28",time:"04:00",home:"Algerije",     away:"Oostenrijk",    hf:"🇩🇿",af:"🇦🇹",group:"J",venue:"Kansas City",              md:3,sim:true},
 {id:72,date:"2026-06-28",time:"04:00",home:"Jordanië",     away:"Argentinië",    hf:"🇯🇴",af:"🇦🇷",group:"J",venue:"Arlington, TX",             md:3,sim:true},
 ];
+// MATCHES_DATA_END
 
 const GROUP_F = [
   {name:"Nederland", flag:"🇳🇱", nl:true},
@@ -463,8 +466,10 @@ function matchesByDate(ds){
 ════════════════════════════════════════════ */
 function timeDisplay(m){
   const s = matchStatus(m);
-  if(s==='live')    return `<span class="match-time live">LIVE</span>`;
-  if(s==='done')    return `<span class="match-time done">${m.time}</span>`;
+  if(s==='live') return `<span class="match-time live">LIVE</span>`;
+  if(s==='done' && m.score!=null)
+    return `<span class="match-time scored">${m.score.home}&nbsp;−&nbsp;${m.score.away}</span>`;
+  if(s==='done') return `<span class="match-time done">${m.time}</span>`;
   return `<span class="match-time future">${m.time}</span>`;
 }
 
@@ -618,8 +623,12 @@ function renderNederland(){
       ${t.nl ? '<span style="font-size:.65rem;color:#ffa040;font-weight:700;">← Oranje</span>' : ''}
     </div>`).join('');
 
-  // NL match cards
-  const nlCards = nlMatches.map(m=>matchCard(m, false)).join('');
+  // NL match cards grouped by date (with date header)
+  const today = dutchDateStr();
+  const nlDates = [...new Set(nlMatches.map(m=>m.date))].sort();
+  const nlCards = nlDates
+    .map(ds => dateSection(ds, ds===today, nlMatches.filter(m=>m.date===ds)))
+    .join('');
 
   document.getElementById('page-nederland').innerHTML = `
   <div class="nl-hero">
