@@ -66,7 +66,7 @@ body{
 
 /* ── CONTENT ─────────────────────────────── */
 .content{
-  padding:14px 12px 90px;
+  padding:14px 12px 156px;
   max-width:680px;margin:0 auto;
 }
 .page{display:none;}
@@ -290,6 +290,52 @@ body{
 }
 .no-matches .nm-icon{font-size:2.5rem;margin-bottom:10px;}
 
+/* ── MUSIC BAR ───────────────────────────── */
+.music-bar{
+  position:fixed;bottom:62px;left:0;right:0;z-index:150;
+  background:linear-gradient(90deg,#160900,#251200,#160900);
+  border-top:2px solid var(--orange);
+  border-bottom:1px solid rgba(255,107,0,.15);
+  display:flex;align-items:center;
+  padding:0 14px;height:54px;gap:10px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.5);
+}
+.music-track{
+  flex:1;min-width:0;
+  display:flex;align-items:center;gap:9px;overflow:hidden;
+}
+.music-disc{
+  font-size:1.2rem;flex-shrink:0;
+  display:inline-block;
+}
+.music-disc.spinning{animation:disc-spin 3s linear infinite;}
+@keyframes disc-spin{to{transform:rotate(360deg);}}
+.music-labels{min-width:0;overflow:hidden;}
+.music-status-txt{
+  font-size:.58rem;color:var(--orange);
+  text-transform:uppercase;letter-spacing:.8px;line-height:1;
+}
+.music-title-txt{
+  font-size:.78rem;color:#ddd;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-top:2px;
+}
+.music-controls{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.mc-btn{
+  background:none;border:none;color:var(--orange);
+  font-size:1.1rem;cursor:pointer;padding:5px;
+  transition:transform .15s,opacity .15s;border-radius:6px;
+  line-height:1;
+}
+.mc-btn:hover{opacity:.8;}
+.mc-btn:active{transform:scale(.88);}
+.mc-play{
+  background:var(--orange);color:#fff;
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;padding:0;
+}
+
 /* ── RESPONSIVE ─────────────────────────── */
 @media(min-width:520px){
   .match-card{padding:18px 20px;}
@@ -310,6 +356,26 @@ body{
   <div id="page-nederland" class="page"></div>
   <div id="page-alle" class="page"></div>
 </main>
+
+<!-- Hidden YouTube player (off-screen) -->
+<div id="yt-player" style="position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;"></div>
+
+<!-- Music bar -->
+<div class="music-bar">
+  <div class="music-track">
+    <span class="music-disc" id="music-disc">🎵</span>
+    <div class="music-labels">
+      <div class="music-status-txt" id="music-status">Laden…</div>
+      <div class="music-title-txt" id="music-title">WK 2026 Mix</div>
+    </div>
+  </div>
+  <div class="music-controls">
+    <button class="mc-btn" onclick="ytPrev()" title="Vorig nummer">⏮</button>
+    <button class="mc-btn mc-play" id="mc-play" onclick="ytTogglePlay()" title="Play / Pauze">▶</button>
+    <button class="mc-btn" onclick="ytNext()" title="Volgend nummer">⏭</button>
+    <button class="mc-btn" id="mc-mute" onclick="ytToggleMute()" title="Geluid">🔊</button>
+  </div>
+</div>
 
 <nav class="nav">
   <button class="nav-btn active" onclick="showPage('home')" id="nb-home">
@@ -745,6 +811,94 @@ setInterval(()=>{
   if(currentPage==='nederland') renderNederland();
   if(currentPage==='alle')      renderAlle();
 }, 60000);
+
+/* ═══════════════════════════════════════════
+   YOUTUBE MUSIC PLAYER
+   Playlist: WK 2026 Mix
+════════════════════════════════════════════ */
+var ytPlayer  = null;
+var ytPlaying = false;
+var ytMuted   = false;
+const YT_PLAYLIST = 'PLuvVI17_kjLYt3q00deWOWHc_hmFX2pu6';
+
+// Inject YouTube IFrame API script
+(function(){
+  const s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+})();
+
+// Called automatically by the YouTube API when ready
+function onYouTubeIframeAPIReady(){
+  ytPlayer = new YT.Player('yt-player', {
+    width: 1, height: 1,
+    playerVars: {
+      listType:  'playlist',
+      list:      YT_PLAYLIST,
+      autoplay:  1,
+      controls:  0,
+      loop:      1,
+      rel:       0,
+      enablejsapi: 1,
+    },
+    events: {
+      onReady: function(e){
+        e.target.setShuffle(true);
+        e.target.playVideo();
+      },
+      onStateChange: function(e){
+        ytPlaying = (e.data === YT.PlayerState.PLAYING);
+        ytSyncUI();
+        if(ytPlaying) ytPollTitle();
+      },
+      onError: function(){
+        document.getElementById('music-status').textContent = '⚠ Fout bij laden';
+      }
+    }
+  });
+}
+
+function ytSyncUI(){
+  const playBtn = document.getElementById('mc-play');
+  const status  = document.getElementById('music-status');
+  const disc    = document.getElementById('music-disc');
+  const muteBtn = document.getElementById('mc-mute');
+  if(!playBtn) return;
+  if(ytPlaying){
+    playBtn.textContent  = '⏸';
+    status.textContent   = '▶ Nu spelend';
+    disc.classList.add('spinning');
+  } else {
+    playBtn.textContent  = '▶';
+    status.textContent   = '⏸ Gepauzeerd';
+    disc.classList.remove('spinning');
+  }
+  if(muteBtn) muteBtn.textContent = ytMuted ? '🔇' : '🔊';
+}
+
+var _titlePollTimer = null;
+function ytPollTitle(){
+  clearTimeout(_titlePollTimer);
+  if(!ytPlayer || !ytPlayer.getVideoData) return;
+  try {
+    const t = ytPlayer.getVideoData().title;
+    if(t) document.getElementById('music-title').textContent = t;
+  } catch(e){}
+  if(ytPlaying) _titlePollTimer = setTimeout(ytPollTitle, 4000);
+}
+
+function ytTogglePlay(){
+  if(!ytPlayer) return;
+  ytPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+}
+function ytNext(){ if(ytPlayer) ytPlayer.nextVideo(); }
+function ytPrev(){ if(ytPlayer) ytPlayer.previousVideo(); }
+function ytToggleMute(){
+  if(!ytPlayer) return;
+  ytMuted = !ytMuted;
+  ytMuted ? ytPlayer.mute() : ytPlayer.unMute();
+  ytSyncUI();
+}
 </script>
 </body>
 </html>
